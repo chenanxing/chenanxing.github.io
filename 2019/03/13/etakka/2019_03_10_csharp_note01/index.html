@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#C-学习笔记1"><span class="toc-text">C#学习笔记1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#C-中的异步"><span class="toc-text">C#中的异步</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#async-await和TaskCompletionSource"><span class="toc-text">async/await和TaskCompletionSource</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异步socket"><span class="toc-text">异步socket</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SynchronizationContext"><span class="toc-text">SynchronizationContext</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConcurrentQueue"><span class="toc-text">ConcurrentQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Assembly"><span class="toc-text">Assembly</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-03-13 01:19:50</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h1 id="C-学习笔记1"><a href="#C-学习笔记1" class="headerlink" title="C#学习笔记1"></a>C#学习笔记1</h1><p>最近在学习使用dotnet的服务端框架egametang,akka。把查阅和理解的dotnet知识点做下笔记</p>
+<h2 id="C-中的异步"><a href="#C-中的异步" class="headerlink" title="C#中的异步"></a>C#中的异步</h2><h3 id="async-await和TaskCompletionSource"><a href="#async-await和TaskCompletionSource" class="headerlink" title="async/await和TaskCompletionSource"></a>async/await和TaskCompletionSource</h3><ul>
+<li><p>C#提供async/await的异步方法.async/await以同步的写法处理异步问题，不用写callback，减少逻辑分段和上下文传递。await 只能出现在 async 函数中，等待task返回。简单理解是，await等待TaskCompletionSource.GetResult返回。使用例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public Task&lt;IResponse&gt; Call(IRequest request)</span><br><span class="line">&#123;</span><br><span class="line">	var tcs = new TaskCompletionSource&lt;IResponse&gt;();</span><br><span class="line">	this.requestCallback[rpcId] = (response) =&gt;</span><br><span class="line">	&#123;</span><br><span class="line">		tcs.SetResult(response);</span><br><span class="line">	&#125;;</span><br><span class="line">	return tcs.Task;</span><br><span class="line">&#125;</span><br><span class="line">public static async ETTask&lt;IResponse&gt; Call(message)</span><br><span class="line">&#123;</span><br><span class="line">	return await session.Call(message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>另外，async/await和一般协程的实现不一样。对协程的理解：协程要处理的问题是，如何保存和恢复上下文，比如libdill的实现是基于线程栈实现，为<br>每个协程分配栈空间，离开时当前上下文压入栈，跳回来恢复栈中保存的寄存器。另一种实现是stackless协程，所有的局部变量和函数参数都在堆上分配，可以减少内存分配，但功能不全，不能被嵌套调用等。据说async/await是基于stackless实现的完整协程，后面有空再读读async/await实现原理。</p>
+</li>
+</ul>
+<h3 id="异步socket"><a href="#异步socket" class="headerlink" title="异步socket"></a>异步socket</h3><ul>
+<li>API:c#中提供ReceiveAsync，SendAsync，AcceptAsync等异步socket的api.<br>比如从referencesource.microsoft查看<a href="https://referencesource.microsoft.com/#System/net/System/Net/Sockets/Socket.cs,194ae41217fbaf74" target="_blank" rel="noopener">ReceiveAsync</a>的调用，ReceiveAsync调用的是WSARecv，也就是异步IO模型是Windows的IOCP.</li>
+<li>SocketAsyncEventArgs：每个socket分配内存和复用对象，设置读写buffer（setBuffer）和回调（onComplete），为了避免在异步套接字I/O量非常大时发生重复的对象分配和同步。</li>
+<li>IO模型理解：从等待数据和读写数据来看，iocp的异步在于，等待数据和读取数据都是异步进行，比如recviveAsync，当收到onComplete回调时，buffer数据已经完成了从内核到用户空间的copy;相比,epoll的读写数据是同步的。</li>
+</ul>
+<h2 id="SynchronizationContext"><a href="#SynchronizationContext" class="headerlink" title="SynchronizationContext"></a>SynchronizationContext</h2><ul>
+<li>SynchronizationContext线程间同步,像ET的做法是主线程拥有SynchronizationContext,其它线程调用SynchronizationContext的Post方法给主线程发消息。</li>
+</ul>
+<h2 id="ConcurrentQueue"><a href="#ConcurrentQueue" class="headerlink" title="ConcurrentQueue"></a>ConcurrentQueue</h2><ul>
+<li>c#中的并发队列 <a href="https://referencesource.microsoft.com/#mscorlib/system/Collections/Concurrent/ConcurrentQueue.cs,18bcbcbdddbcfdcb" target="_blank" rel="noopener">ConcurrentQueue</a></li>
+</ul>
+<p><a href="https://www.bbsmax.com/A/GBJr0DRd0e/" target="_blank" rel="noopener">参考</a><br><img src="images/concurrentQueue.png" alt="image"></p>
+<ul>
+<li>实现原理是分Segment,段内是数组的实现，段与段之间的链表，优点是减轻纯数组实现的扩容内存开销和纯链表实现时频繁出队入队的耗时。<br>实现<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public void Enqueue(T item)</span><br><span class="line">        &#123;</span><br><span class="line">            SpinWait spin = new SpinWait();</span><br><span class="line">            while (true)</span><br><span class="line">            &#123;</span><br><span class="line">                Segment tail = m_tail;</span><br><span class="line">                if (tail.TryAppend(item))</span><br><span class="line">                    return;</span><br><span class="line">                spin.SpinOnce();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><a href="https://referencesource.microsoft.com/#mscorlib/system/threading/SpinWait.cs,fb21e45acae7e04c" target="_blank" rel="noopener">SpinWait</a>:自旋锁，维护一个m_count，根据SpinOnce触发的次数，作出调整策略，比如SpinOnce20次数可以线程挂起<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">internal const int SLEEP_1_EVERY_HOW_MANY_TIMES = 20; // After how many yields should we Sleep(1)?</span><br></pre></td></tr></table></figure></p>
+<p>TryAppend<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">internal bool TryAppend(T value)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    newhigh = Interlocked.Increment(ref m_high);</span><br><span class="line">    if (newhigh &lt;= SEGMENT_SIZE - 1)</span><br><span class="line">    &#123;</span><br><span class="line">        m_array[newhigh] = value;</span><br><span class="line">        m_state[newhigh].m_value = true;</span><br><span class="line">    &#125;</span><br><span class="line">    if (newhigh == SEGMENT_SIZE - 1)</span><br><span class="line">    &#123;</span><br><span class="line">        Grow();</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return newhigh &lt;= SEGMENT_SIZE - 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中Interlocked.Increment是原子操作</p>
+<h2 id="Assembly"><a href="#Assembly" class="headerlink" title="Assembly"></a>Assembly</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Represents an assembly, which is a reusable, versionable, and self-describing building block of a common language runtime application.</span><br></pre></td></tr></table></figure>
+<p>Assembly是可重用、无版本冲突并且可自我描述的公共语言运行时（Common Language Runtime ）应用程序构造块。c#的程序集，也就是编译后生成的<em>.exe或</em>.dll文件</p>
+<p>通过反射Reflection可以提取Assembly的属性</p>
+<ul>
+<li>GetCustomAttributes 方法列出应用于程序集的特性</li>
+<li>GetTypes 方法列出程序集中的所有类型</li>
+</ul>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
