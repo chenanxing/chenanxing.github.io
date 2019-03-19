@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#AKKA学习actor篇"><span class="toc-text">AKKA学习actor篇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是actor"><span class="toc-text">什么是actor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AKKA中的actor"><span class="toc-text">AKKA中的actor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AKKA中的线程模型"><span class="toc-text">AKKA中的线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#知识准备"><span class="toc-text">知识准备</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#akka中的actor实现（如何结合线程模型）"><span class="toc-text">akka中的actor实现（如何结合线程模型）</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-03-19 09:36:20</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h2 id="AKKA学习actor篇"><a href="#AKKA学习actor篇" class="headerlink" title="AKKA学习actor篇"></a>AKKA学习actor篇</h2><h3 id="什么是actor"><a href="#什么是actor" class="headerlink" title="什么是actor"></a>什么是actor</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The actor model provides an abstraction that allows you to think about your code in terms of communication, not unlike people in a large organization. The basic characteristic of actors is that they model the world as stateful entities communicating with each other by explicit message passing.</span><br></pre></td></tr></table></figure>
+<p>akka.net对actor模型的定义，actor模型中，由有状态的实体消息传递相互通信构成。</p>
+<p>理解：</p>
+<ul>
+<li>Actor是并发模型的一种抽象。每个actor之间不共享状态，通过发消息的机制通信，避免了多线程的锁（实际由global队列的原子操作控制）。作用就是可以高效的利用多核cpu，而不需要担心锁。</li>
+<li>Actor适合分布式。每个执行单元都应该是一个actor,无须关心每个actor的具体位置，单机或者分布式中有同样的操作方式（remote,cluster）</li>
+<li>比如skynet是actor模型的一种实现，每个actor是一个lua vm,每个actor的mailbox挂在全局的globalqueue,由工作线程worker从globalqueue取出消息执行，并控制每个actor只能被一个worker同时执行。</li>
+<li>akka中的actor,跟面向对象相似，在akka中一切都是actor。actorcell本身带有状态，行为，邮箱，子Actor和监管策略。</li>
+</ul>
+<h3 id="AKKA中的actor"><a href="#AKKA中的actor" class="headerlink" title="AKKA中的actor"></a>AKKA中的actor</h3><p><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_17_akka_actor/akka_actor01.png?raw=true" alt="image"></p>
+<p>上图是akka.net文档对<a href="https://getakka.net/articles/concepts/actors.html" target="_blank" rel="noopener">actor</a>的描述</p>
+<p>理解：</p>
+<ol>
+<li>Mailbox:邮箱，actor间通信通过给邮箱发消息，调用过程是往接收actor邮箱发消息-&gt;记为邮箱有消息-&gt;线程池worker检查邮箱-&gt;接收actor触发收消息</li>
+<li>Behavior:行为，处理消息的行为</li>
+<li>State:状态,actor维护着一个私有的状态，不共享</li>
+<li>SupervisorStrategy:监管策略,一个actor对子actor的错误处理，有两种:AllForOneStrategy和OneForOneStrategy</li>
+<li>Event-driven thread:每个actor只由单线程同时执行，akka中提供了多种dispatch的可选方案，默认是使用dotnet的threadpool。</li>
+<li>ActorRef:指向一个actor,actorRef可以在本机也可以是远程</li>
+<li>Actor Systems: 一个app只有一个actorsystems,管理所有actor，actor之间组成树结构，至少有三个actor（/user: 守护Actor，/system: 系统守护者，/: 根守护者）</li>
+</ol>
+<h3 id="AKKA中的线程模型"><a href="#AKKA中的线程模型" class="headerlink" title="AKKA中的线程模型"></a>AKKA中的线程模型</h3><p>上面介绍了akka的actor类的基本结构。本篇主要写actor在akka中是如何实现的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">protected ExecutorServiceConfigurator ConfigureExecutor()</span><br><span class="line">&#123;</span><br><span class="line">    var executor = Config.GetString(&quot;executor&quot;);</span><br><span class="line">    switch (executor)</span><br><span class="line">    &#123;</span><br><span class="line">        case null:</span><br><span class="line">        case &quot;&quot;:</span><br><span class="line">        case &quot;default-executor&quot;:</span><br><span class="line">        case &quot;thread-pool-executor&quot;:</span><br><span class="line">            return new ThreadPoolExecutorServiceFactory(Config, Prerequisites);</span><br><span class="line">        case &quot;fork-join-executor&quot;:</span><br><span class="line">            return new ForkJoinExecutorServiceFactory(Config, Prerequisites);</span><br><span class="line">        case &quot;current-context-executor&quot;:</span><br><span class="line">            return new CurrentSynchronizationContextExecutorServiceFactory(Config, Prerequisites);</span><br><span class="line">        case &quot;task-executor&quot;:</span><br><span class="line">            return new DefaultTaskSchedulerExecutorConfigurator(Config, Prerequisites);</span><br><span class="line">        default:</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure></p>
+<p>从任务执行的配置可以看到，akka提供了多种任务执行方式。</p>
+<ul>
+<li>ThreadPoolExecutorServiceFactory：根据App.Domain的isFullTrust调用TreadPool.UnsafeQueueUserWorkItem或者ThreadPool.QueueUserWorkItem</li>
+<li>ForkJoinExecutorServiceFactory:使用<a href="https://github.com/helios-io/DedicatedThreadPool" target="_blank" rel="noopener">DedicatedThreadPool</a>.QueueUserWorkItem,（没具体看，大概是对线程池耗时任务的优化）</li>
+<li>CurrentSynchronizationContextExecutorServiceFactory：使用TaskScheduler.FromCurrentSynchronizationContext</li>
+<li>DefaultTaskSchedulerExecutorConfigurator：TaskScheduler.Default  (dotnet的Task,Task是线程池的上层封闭，对耗时任务不放到线程池中而另起线程)</li>
+</ul>
+<p>这里从默认配置方式ThreadPool深入了解。</p>
+<h4 id="知识准备"><a href="#知识准备" class="headerlink" title="知识准备"></a>知识准备</h4><p><a href="https://www.codeproject.com/Articles/89284/Parallel-programming-in-NET-Internals" target="_blank" rel="noopener">dotnet threadpool</a><br><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_17_akka_actor/akka_actor02.png?raw=true" alt="image"></p>
+<p>ThreadPoolGlobals:全局队列</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static readonly ThreadPoolWorkQueue workQueue = new ThreadPoolWorkQueue();</span><br></pre></td></tr></table></figure>
+<p>ThreadPoolWorkQueueThreadLocals:本线程队列，ThreadStatic属性，初始化加入WorkStealingQueueList,本线程队列和主队列都没有任务时从别的线程队列偷一任务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[ThreadStatic]</span><br><span class="line">public static ThreadPoolWorkQueueThreadLocals threadLocals;</span><br></pre></td></tr></table></figure></p>
+<p>QueueUserWorkItem:线程池的入口，给TreadPool加入任务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static bool QueueUserWorkItem(WaitCallback callBack, object state)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    ThreadPoolGlobals.workQueue.Enqueue(tpcallBack, forceGlobal: true);</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>加入队列可选加入全局队列或本线程队列<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public void Enqueue(object callback, bool forceGlobal)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    ThreadPoolWorkQueueThreadLocals tl = null;</span><br><span class="line">    if (!forceGlobal)</span><br><span class="line">        tl = ThreadPoolWorkQueueThreadLocals.threadLocals;</span><br><span class="line">    if (null != tl)</span><br><span class="line">    &#123;</span><br><span class="line">        tl.workStealingQueue.LocalPush(callback);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        workItems.Enqueue(callback);</span><br><span class="line">    &#125;</span><br><span class="line">    EnsureThreadRequested();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>dispatch中取任务执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">internal static bool Dispatch()</span><br><span class="line">&#123;</span><br><span class="line">    while (ThreadPool.KeepDispatching(startTickCount))</span><br><span class="line">    &#123;</span><br><span class="line">        bool missedSteal = false;</span><br><span class="line">        // Use operate on workItem local to try block so it can be enregistered </span><br><span class="line">        object workItem = outerWorkItem = workQueue.Dequeue(tl, ref missedSteal);</span><br><span class="line">        ...</span><br><span class="line">        task.ExecuteFromThreadPool(currentThread);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ThreadPool的2个workqueue,一个gobal和一些local.先从local找任务，再去找global,都找不出随机一个local偷一个任务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">public object Dequeue(ThreadPoolWorkQueueThreadLocals tl, ref bool missedSteal)</span><br><span class="line">&#123;</span><br><span class="line">    WorkStealingQueue localWsq = tl.workStealingQueue;</span><br><span class="line">    object callback;</span><br><span class="line">    if ((callback = localWsq.LocalPop()) == null &amp;&amp; // first try the local queue</span><br><span class="line">    !workItems.TryDequeue(out callback)) // then try the global queue</span><br><span class="line">    &#123;</span><br><span class="line">        // finally try to steal from another thread&apos;s local queue</span><br><span class="line">        WorkStealingQueue[] queues = WorkStealingQueueList.Queues;</span><br><span class="line">        int c = queues.Length;</span><br><span class="line">        Debug.Assert(c &gt; 0, &quot;There must at least be a queue for this thread.&quot;);</span><br><span class="line">        int maxIndex = c - 1;</span><br><span class="line">        int i = tl.random.Next(c);</span><br><span class="line">        while (c &gt; 0)</span><br><span class="line">        &#123;</span><br><span class="line">            i = (i &lt; maxIndex) ? i + 1 : 0;</span><br><span class="line">            WorkStealingQueue otherQueue = queues[i];</span><br><span class="line">            if (otherQueue != localWsq &amp;&amp; otherQueue.CanSteal)</span><br><span class="line">            &#123;</span><br><span class="line">                callback = otherQueue.TrySteal(ref missedSteal);</span><br><span class="line">                if (callback != null)</span><br><span class="line">                &#123;</span><br><span class="line">                    break;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            c--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return callback;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面就是threadpool的基本逻辑，akka中的默认actor消息执行是threadpool方式</p>
+<h3 id="akka中的actor实现（如何结合线程模型）"><a href="#akka中的actor实现（如何结合线程模型）" class="headerlink" title="akka中的actor实现（如何结合线程模型）"></a>akka中的actor实现（如何结合线程模型）</h3><p>ICanTell抽象类的Tell方法是actor的消息发起，actor消息有两类systemMessage和mailboxMessage.<br>Tell-&gt;TellInternal-&gt;SendMessage-&gt;Dispatcher.Dispatch<br>发消息实际是给目标actor的mailbox插入Envelope(Envelope包装了message和sender)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public virtual void Dispatch(ActorCell cell, Envelope envelope)</span><br><span class="line">&#123;</span><br><span class="line">    var mbox = cell.Mailbox;</span><br><span class="line">    mbox.Enqueue(cell.Self, envelope);</span><br><span class="line">    RegisterForExecution(mbox, true, false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后RegisterForExecution，标记mbox有任务执行，同时保证了一个mailbox只加入threadpool一次<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">internal bool RegisterForExecution(Mailbox mbox, bool hasMessageHint, bool hasSystemMessageHint)</span><br><span class="line">&#123;</span><br><span class="line">    if (mbox.CanBeScheduledForExecution(hasMessageHint, hasSystemMessageHint)) //This needs to be here to ensure thread safety and no races</span><br><span class="line">    &#123;</span><br><span class="line">        if (mbox.SetAsScheduled())</span><br><span class="line">        &#123;</span><br><span class="line">            ExecuteTask(mbox);</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>ExecuteTask调用Executor.Execute(run)，这里就是具体的任务执行器的调度，比如threadpool方案，Execute就是给线程池抛任务，到这里就完成了actor模型与线程模型的结合<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public override void Execute(IRunnable run)</span><br><span class="line">&#123;</span><br><span class="line">    ThreadPool.UnsafeQueueUserWorkItem(Executor, run);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Mailbox本身是一个IRunnable，当它被线程执行时，分别处理了系统消息(resume,stop等)和邮箱消息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public void Run()</span><br><span class="line">&#123;</span><br><span class="line">    try</span><br><span class="line">    &#123;</span><br><span class="line">        if (!IsClosed()) // Volatile read, needed here</span><br><span class="line">        &#123;</span><br><span class="line">            Actor.UseThreadContext(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                ProcessAllSystemMessages(); // First, deal with any system messages</span><br><span class="line">                ProcessMailbox(); // Then deal with messages</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    finally</span><br><span class="line">    &#123;</span><br><span class="line">        SetAsIdle(); // Volatile write, needed here</span><br><span class="line">        Dispatcher.RegisterForExecution(this, false, false); // schedule to run again if there are more messages, possibly</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>ProcessMailbox,TryDequeue对MessageQueue出队列，消息执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">private void ProcessMailbox(int left, long deadlineTicks)</span><br><span class="line">&#123;</span><br><span class="line">    while (ShouldProcessMessage())</span><br><span class="line">    &#123;</span><br><span class="line">        if (!TryDequeue(out var next)) return;</span><br><span class="line">            DebugPrint(&quot;&#123;0&#125; processing message &#123;1&#125;&quot;, Actor.Self, next);</span><br><span class="line">        Actor.Invoke(next);</span><br><span class="line">        ProcessAllSystemMessages();</span><br><span class="line">        ...</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后Actor的Invoke调用的ReceiveMessage,最终根据actor的Receive处理消息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">protected virtual void ReceiveMessage(object message)</span><br><span class="line">&#123;</span><br><span class="line">    var wasHandled = _actor.AroundReceive(_state.GetCurrentBehavior(), message);</span><br><span class="line">    if (System.Settings.AddLoggingReceive &amp;&amp; _actor is ILogReceive)</span><br><span class="line">    &#123;</span><br><span class="line">        //TODO: akka alters the receive handler for logging, but the effect is the same. keep it this way?</span><br><span class="line">        var msg = &quot;received &quot; + (wasHandled ? &quot;handled&quot; : &quot;unhandled&quot;) + &quot; message &quot; + message + &quot; from &quot; + Sender.Path;</span><br><span class="line">        Publish(new Debug(Self.Path.ToString(), _actor.GetType(), msg));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>以上就是一个actor从SendMessage到ReceiveMessage的流程</p>
+<p>总结：akka中的actor消息机制的分配默认使用dotnet的ThreadPool.ThreadPool的2个workqueue,一个global和一些local.并发队列global的workItem使用的是ConcurrentQueue。</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
