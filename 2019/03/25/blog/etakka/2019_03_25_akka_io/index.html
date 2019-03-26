@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        2019_03_25_akka_io - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Akka学习IO篇"><span class="toc-text">Akka学习IO篇</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#知识回顾"><span class="toc-text">知识回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写一个简单的echo-server"><span class="toc-text">写一个简单的echo server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-Manager实现"><span class="toc-text">TCP Manager实现</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        2019_03_25_akka_io
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-03-25 21:10:33</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h1 id="Akka学习IO篇"><a href="#Akka学习IO篇" class="headerlink" title="Akka学习IO篇"></a>Akka学习IO篇</h1><p>Akka的io模块提供了tcp,udp支持。本篇主要介绍tcp模块在Akka中的实现。在Akka中,everything is actor,所以tcp模块的实现也就是Akka如何使用actor来封装c#的socket async。</p>
+<h2 id="知识回顾"><a href="#知识回顾" class="headerlink" title="知识回顾"></a>知识回顾</h2><p>每个actor是一个状态机，通过行为(become)切换处理消息的响应函数</p>
+<p>具体的实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public IActorState Become(Receive receive)</span><br><span class="line">&#123;</span><br><span class="line">    if (_behaviorStack.Count &gt; 1) //We should never pop off the initial receiver</span><br><span class="line">    _behaviorStack.Pop();</span><br><span class="line">    _behaviorStack.Push(receive);</span><br><span class="line">    return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>receive：传入该状态下响应消息的handler代理，在receive中处理消息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">private Receive WaitingForRegistration(IActorRef commander)</span><br><span class="line">&#123;</span><br><span class="line">    return message =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            switch (message)</span><br><span class="line">            &#123;</span><br><span class="line">                case Register register:</span><br><span class="line">                    ...</span><br><span class="line">                default:</span><br><span class="line">                    ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>behaviorStack：维护actor接收消息的行为，在actor收到消息时从behaviorStack中pop出handler</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">protected virtual void ReceiveMessage(object message)</span><br><span class="line">&#123;</span><br><span class="line">    var wasHandled = _actor.AroundReceive(_state.GetCurrentBehavior(), message);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过actor的become方法改变它接收消息的行为，actor每个状态有对应的message handler。</p>
+</li>
+</ul>
+<h2 id="写一个简单的echo-server"><a href="#写一个简单的echo-server" class="headerlink" title="写一个简单的echo server"></a>写一个简单的echo server</h2><p>Akka中一个简单的echo server是这样的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public class EchoService : ReceiveActor</span><br><span class="line">&#123;</span><br><span class="line">    private readonly IActorRef _manager = Context.System.Tcp(); </span><br><span class="line">    public EchoService(EndPoint endpoint)</span><br><span class="line">    &#123;</span><br><span class="line">        _manager.Tell(new Tcp.Bind(Self, endpoint));</span><br><span class="line">        // To behave as TCP listener, actor should be able to handle Tcp.Connected messages</span><br><span class="line">        Receive&lt;Tcp.Connected&gt;(connected =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(&quot;Remote address &#123;0&#125; connected&quot;, connected.RemoteAddress);</span><br><span class="line">            Sender.Tell(new Tcp.Register(Context.ActorOf(Props.Create(() =&gt; new EchoConnectionHandler(connected.RemoteAddress, Sender)))));</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">public class EchoConnectionHandler : ReceiveActor</span><br><span class="line">&#123;</span><br><span class="line">    public EchoConnectionHandler(EndPoint remote, IActorRef connection)</span><br><span class="line">    &#123;</span><br><span class="line">        Receive&lt;Tcp.Received&gt;(received =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>实现两个actor,EchoService和EchoConnectionHandler</li>
+<li>EchoService：创建tcp(bind,listen,accept)，实际是给tcpmanager的actor发bind消息，收到connect消息时，注册connectionhandler(把actorRef注册到tcpmanager)</li>
+<li>EchoConnectionHandler：处理connection的消息响应函数。</li>
+</ul>
+<h2 id="TCP-Manager实现"><a href="#TCP-Manager实现" class="headerlink" title="TCP Manager实现"></a>TCP Manager实现</h2><p>下面主要介绍Tcp的actor实现。</p>
+<p><img src="https://getakka.net/images/io-tcp-server.png" alt="image"></p>
+<p>说明：</p>
+<ul>
+<li>actor:图中的所有方框对象都是一个actor</li>
+<li>TcpMessage:图中所有箭头的类型都是一个tcpMessage（Bind,Create,Connected,Register,Received,WriteCommand）</li>
+<li>状态转换：actor通过become方法切换自己处理消息的状态，比如TcpConnection收到SocketConnected消息到，转换行为等待connectionHandler的注册用于处理socket接收的消息（Context.Become(WaitingForRegistration(commander));）</li>
+</ul>
+<p>具体各个actor的作用：</p>
+<ul>
+<li>BindCommander:bind消息的请求者，就是echo_server中的EchoService本身</li>
+<li>BindHandler:bind消息的响应者，echo_server中也是EchoService本身</li>
+<li>ConnectionHander:接收connection消息的actor,echo_server中的EchoConnectionHandler,通过Tcp.Register注册给Tcp Manager回调</li>
+<li>TcpManager:单例TcpExt的成员actorRef.</li>
+</ul>
+<p><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_25_akka_io/akka_io_tcp02.png?raw=true" alt="image"></p>
+<ul>
+<li><ul>
+<li>其中，Manager指向TcpManager(actor)</li>
+</ul>
+</li>
+<li><ul>
+<li>BufferPool&amp;&amp;SocketEventArgsPool:预分配connection的读写内存，每个connection从预分配池中创建ReceiveArgs和SendArgs（c#的socket async参数）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">protected void AcquireSocketAsyncEventArgs()</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    ReceiveArgs = Tcp.SocketEventArgsPool.Acquire(Self);</span><br><span class="line">    var buffer = Tcp.BufferPool.Rent();</span><br><span class="line">    ReceiveArgs.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);</span><br><span class="line">    SendArgs = Tcp.SocketEventArgsPool.Acquire(Self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>TcpListener:通过socket api创建socket(new,bind,listen)和dotnet的AcceptAsync,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public TcpListener(TcpExt tcp, IActorRef bindCommander,Tcp.Bind bind)</span><br><span class="line">&#123;</span><br><span class="line">    _socket = new Socket()</span><br><span class="line">    ...</span><br><span class="line">    _socket.Bind(bind.LocalAddress);</span><br><span class="line">    _socket.Listen(bind.Backlog);</span><br><span class="line">    _saeas = Accept(_acceptLimit)</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>将asyncArgs的Completed设置为给自己发消息，处理accept的连接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private IEnumerable&lt;SocketAsyncEventArgs&gt; Accept(int limit)&#123;</span><br><span class="line">    var saea = new SocketAsyncEventArgs();</span><br><span class="line">    saea.Completed += (s, e) =&gt; self.Tell(e);</span><br><span class="line">    if (!_socket.AcceptAsync(saea))</span><br><span class="line">        Self.Tell(saea);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在receive方法创建新的连接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">protected override bool Receive(object message)</span><br><span class="line">&#123;</span><br><span class="line">    if (message is SocketAsyncEventArgs)</span><br><span class="line">    &#123;</span><br><span class="line">        ...</span><br><span class="line">        Context.ActorOf(Props.Create(() =&gt; new TcpIncomingConnection()</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>TcpIncomingConnection：</li>
+</ul>
+<p>一个connection的状态机切换，不同状态响应下消息<br><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_25_akka_io/akka_io_tcp01.png?raw=true" alt="image"></p>
+<ul>
+<li><ul>
+<li>创建后（preStart）等待connectionHandler的注册</li>
+</ul>
+</li>
+<li><ul>
+<li>注册后（register消息）切换连接状态</li>
+</ul>
+</li>
+<li><ul>
+<li>连接中（connected）处理读写消息，封装dotnet的receviveAsync接口</li>
+</ul>
+</li>
+<li><ul>
+<li>收到中止（Abort）关闭socket</li>
+</ul>
+</li>
+</ul>
+<p>总结：Akka中所有对象都是以actor存在，tcp的实现基于socketasync封装的各个actor（TcpManager,TcpListener,TcpConnection），actor有各自的状态机，切换状态处理t 和响应消息，其中connection的读写内存使用对象池SocketAsyncEventArgsPool.</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
