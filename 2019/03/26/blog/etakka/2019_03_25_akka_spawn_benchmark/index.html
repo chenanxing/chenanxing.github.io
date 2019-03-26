@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#akka的actor并发benchmark"><span class="toc-text">akka的actor并发benchmark</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#本地测试环境：【i5-7500-Win10】"><span class="toc-text">本地测试环境：【i5-7500, Win10】</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#对比go的goroutine"><span class="toc-text">对比go的goroutine</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#本地测试环境：【i5-7500-Win10】-1"><span class="toc-text">本地测试环境：【i5-7500, Win10】</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-03-26 15:50:50</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h2 id="akka的actor并发benchmark"><a href="#akka的actor并发benchmark" class="headerlink" title="akka的actor并发benchmark"></a>akka的actor并发benchmark</h2><p>akka.net的解决方案中有spawnbenchmark工程</p>
+<p><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_25_akka_spawn_benchmark/akka_actor_benchmark01.png?raw=true" alt="image"></p>
+<p><a href="https://github.com/akkadotnet/akka.net/blob/dev/src/benchmark/SpawnBenchmark/Program.cs" target="_blank" rel="noopener">SpawnBenchmark</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private void StartRun(int n)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine($&quot;Start run &#123;n&#125;&quot;);</span><br><span class="line">    var start = Stopwatch.ElapsedMilliseconds;</span><br><span class="line">    Context.ActorOf(SpawnActor.Props).Tell(new SpawnActor.Start(7, 0));</span><br><span class="line">    Context.Become(Waiting(n - 1, start));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>测试逻辑是，创建一个actor(rootactor),每个actor创建10个子actor,递归深度7次，也就是10,000,000(10的7次方)个actor.全部actor创建完，给parent actor发消息直到root actor。计算从rootactor创建到rootactor收到消息计算耗时。</li>
+</ul>
+<h4 id="本地测试环境：【i5-7500-Win10】"><a href="#本地测试环境：【i5-7500-Win10】" class="headerlink" title="本地测试环境：【i5-7500, Win10】"></a>本地测试环境：【i5-7500, Win10】</h4><p><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_25_akka_spawn_benchmark/akka_actor_spawn_benchmark.png?raw=true" alt="image"></p>
+<h4 id="对比go的goroutine"><a href="#对比go的goroutine" class="headerlink" title="对比go的goroutine"></a>对比go的goroutine</h4><p>网上有个同样测试逻辑的工程，分别对libmill,go（goroutine），python(gevent)做了百万并发benchmark</p>
+<p><a href="https://github.com/atemerev/skynet" target="_blank" rel="noopener">Skynet 1M concurrency</a></p>
+<p>下面是网上的一些测试数据</p>
+<p><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_25_akka_spawn_benchmark/akka_actor_spawn_benchmark02.png?raw=true" alt="image"></p>
+<ul>
+<li>这里主要是对比go的goroutine并发性能</li>
+</ul>
+<h4 id="本地测试环境：【i5-7500-Win10】-1"><a href="#本地测试环境：【i5-7500-Win10】-1" class="headerlink" title="本地测试环境：【i5-7500, Win10】"></a>本地测试环境：【i5-7500, Win10】</h4><p><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_03_25_akka_spawn_benchmark/akka_actor_spawn_benchmark03.png?raw=true" alt="image"></p>
+<p>可以看到，akka.net跟go的actor并发性能还是差很多</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
