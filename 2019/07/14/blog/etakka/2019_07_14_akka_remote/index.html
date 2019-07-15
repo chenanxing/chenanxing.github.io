@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        2019_07_14_akka_remote（未完） - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Akka学习remote篇"><span class="toc-text">Akka学习remote篇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#remote模块提供了什么功能"><span class="toc-text">remote模块提供了什么功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现细节"><span class="toc-text">实现细节</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        2019_07_14_akka_remote（未完）
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-07-14 21:10:33</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h1 id="Akka学习remote篇"><a href="#Akka学习remote篇" class="headerlink" title="Akka学习remote篇"></a>Akka学习remote篇</h1><p>akka的ActorSystem是单进程的，而remote模块给ActorSystem提供了跨进程通信的机制，cluster是Akka在remote模块基础上实现集群。下面先介绍remote模块的功能和使用例子，然后第二部分是其实现细节。</p>
+<h3 id="remote模块提供了什么功能"><a href="#remote模块提供了什么功能" class="headerlink" title="remote模块提供了什么功能"></a>remote模块提供了什么功能</h3><ol>
+<li>位置透明(Location transparency with RemoteActorRef)<br> 通过少量配置实现，像本地actor一样调用远程actor。基本原理是，一个actor引用是IActorRef,而LocalActorRef和RemoteActorRef都继承IActorRef,在调用Tell时会调用对应实例的虚函数Tell（LocalActorRef or RemoteActorRef）<br> 一个简单的例子：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">using (var system = ActorSystem.Create(&quot;Deployer&quot;, ConfigurationFactory.ParseString(@&quot;</span><br><span class="line">            akka &#123;  </span><br><span class="line">                actor&#123;</span><br><span class="line">                    provider = remote</span><br><span class="line">                    deployment &#123;</span><br><span class="line">                        /remoteecho &#123;</span><br><span class="line">                            remote = &quot;&quot;akka.tcp://DeployTarget@localhost:8090&quot;&quot;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                remote &#123;</span><br><span class="line">                    dot-netty.tcp &#123;</span><br><span class="line">                        port = 0</span><br><span class="line">                        hostname = localhost</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;&quot;)))</span><br><span class="line">var localEcho = system.ActorOf(Props.Create(() =&gt; new EchoActor()), &quot;localecho&quot;);</span><br><span class="line">localEcho.Tell(new Hello(&quot;hi from localEcho!&quot;))</span><br><span class="line">var remoteEcho = system.ActorOf(Props.Create(() =&gt; new EchoActor()), &quot;remoteecho&quot;);</span><br><span class="line">remoteEcho.Tell(new Hello(&quot;hi from remoteEcho!&quot;))</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>创建system时添加配置 /remoteecho,system.ActorOf通过actor的名字参数可以分别创建本地actor和远程actor,拿到IActorRef的情况下，与本地或远程actor来说是通信透明的。</p>
+<p>2 远程定位(remote addressing)<br>    在知道actor位置的情况下,与这个actor通信要用到ActorSelection，还可以给actor发送Identify消息拿到这个Actor的IActorRef。<br>    ActorSelection的使用例子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">system.ActorSelection(&quot;/user/remoteecho&quot;).Tell(new Hello(&quot;hi from selection!&quot;));</span><br></pre></td></tr></table></figure></p>
+<p>其中/remoteecho是上面配置的”akka.tcp://DeployTarget@localhost:8090”,<br>这个地址叫actorPath,由Protocol,ActorSystem,Address,Path构成,无非就是定位到远程对应的actor地址,ActorSelection内部会解析这个地址给远程actorsystem的一个特定actor(RemoteSystemDaemon)发消息，再找到对应actor。下图是actorPath名字的约定图示<br><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_07_14_akka_remote/akka_remote01.png?raw=true" alt="image"></p>
+<p>3 远程发消息(remote message)<br>    通过ActorSelection定位actor,或者拿到IActorRef调用Tell都可以给对应actor发消息。底层逻辑是底层管理transport和EndPointManager, tranports管理底层连接，EndPointManager负责上层发送接收和管理连接。后面会具体讲实现细节。</p>
+<p>4 远程发布actor(remote depoly)<br>    在Akka中如何在远程创建一个actor（同BigWorld.createBaseRemotely）<br>    还是上面的例子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var remoteEcho1 = system.ActorOf(Props.Create(() =&gt; new EchoActor()), &quot;remoteecho&quot;);</span><br></pre></td></tr></table></figure></p>
+<p>配置指定remoteecho为”akka.tcp://DeployTarget@localhost:8090”,本地actor和远程actor的创建都是system.ActorOf，不同的只是actor名字参数。在远程创建中，最终调用的是RemoteActorRefProvider的actorof,创建一个RemoteActorRef.RemoteActorRef是远程actor的一个本地引用，创建过程是给远程一个特殊actor(remote)发消息DaemonMsgCreate，远程actor处理消息HandleDaemonMsgCreate并在本地创建对应actor(_system.Provider.ActorOf)</p>
+<p>5 默认的分布式(Distributed by Default)<br>    transport:Akka.Remote默认支持tcp，底层用dot-netty库作为网络库。<br>    Address：ip+port或者hostname<br>    endpoint: 一个endpoint管理一个远程连接，endPointManager管理所有endPoint,而EndPointManager是顶层Actor的一个子Actor（）<br>    assoication: 两个endpoint之间的连接，初始化时打开端口监听连接。<br>    <img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_07_14_akka_remote/akka_remote02.png?raw=true" alt="image"></p>
+<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><p>transports和endpointManager就两个比较重要的类，transports负责管理底层连接和endpointManager负责上层发送接收</p>
+<p>类关系图（未完）</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
