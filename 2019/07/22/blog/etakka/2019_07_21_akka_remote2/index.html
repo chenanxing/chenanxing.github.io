@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#建立连接"><span class="toc-text">建立连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发消息"><span class="toc-text">发消息</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-07-22 09:45:27</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <p>分为两部分，一是建立连接，二是发消息</p>
+<h3 id="建立连接"><a href="#建立连接" class="headerlink" title="建立连接"></a>建立连接</h3><p>发消息的入口是actorRef的tell方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public void Tell(object message, IActorRef sender = null)</span><br><span class="line">&#123;</span><br><span class="line">    if (sender == null &amp;&amp; ActorCell.Current != null &amp;&amp; ActorCell.Current.Self != null)</span><br><span class="line">        sender = ActorCell.Current.Self;</span><br><span class="line">        DeliverSelection(Anchor as IInternalActorRef, sender, new ActorSelectionMessage(message, Path, wildCardFanOut: false));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中DeliverSelection通过多态实现了localActor和remoteActor的tellInternal,这里看remoteActor的tellInternal</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">remoteactor.TellInternal()&#123;</span><br><span class="line">    Remote.Send(message, sender, this)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>remote的send实际调用的是_endpointManager的tell,构造一个endpointmanager.send消息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public override void Send(object message, IActorRef sender, RemoteActorRef recipient)</span><br><span class="line">&#123;</span><br><span class="line">    if (_endpointManager == null)</span><br><span class="line">    &#123;</span><br><span class="line">        throw new RemoteTransportException(&quot;Attempted to send remote message but Remoting is not running.&quot;, null);</span><br><span class="line">    &#125;</span><br><span class="line">    _endpointManager.Tell(new EndpointManager.Send(message, recipient, sender), sender ?? ActorRefs.NoSender);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>再看看endpointmanager对send消息的处理（endpointmanager是一个actor,每个actor都有处理消息的状态机,这里就是Send消息的响应方法）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Receive&lt;Send&gt;(send =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    var recipientAddress = send.Recipient.Path.Address;</span><br><span class="line">    IActorRef CreateAndRegisterWritingEndpoint(int? refuseUid) _endpoints.RegisterWritableEndpoint(recipientAddress, CreateEndpoint(recipientAddressend.Recipient.LocalAddressToUse, _transportMapping[send.Recipient.LocalAddressToUse], _settingwriting: true, handleOption: null, refuseUid: refuseUid), uid: null, refuseUid: refuseUid</span><br><span class="line">    // pattern match won&apos;t throw a NullReferenceException if one is returned WritableEndpointWithPolicyFor</span><br><span class="line">    _endpoints.WritableEndpointWithPolicyFor(recipientAddress).Match()</span><br><span class="line">        .With&lt;Pass&gt;(</span><br><span class="line">            pass =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                pass.Endpoint.Tell(send);</span><br><span class="line">            &#125;)</span><br><span class="line">        .With&lt;Gated&gt;(gated =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            if (gated.TimeOfRelease.IsOverduCreateAndRegisterWritingEndpoint(gated.RefuseUid).Tell(send);</span><br><span class="line">            else Context.System.DeadLetters.Tell(send);</span><br><span class="line">        &#125;)</span><br><span class="line">        .With&lt;WasGated&gt;(wasGated =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            CreateAndRegisterWritingEndpoint(wasGated.RefuseUid).Tell(send);</span><br><span class="line">        &#125;)</span><br><span class="line">        .With&lt;Quarantined&gt;(quarantined =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            // timeOfRelease is only used for garbage collection reasons, therefore it is ignored here. still have</span><br><span class="line">            // the Quarantined tombstone and we know what UID we don&apos;t want to accept, so use it.</span><br><span class="line">            CreateAndRegisterWritingEndpoint(quarantined.Uid).Tell(send);</span><br><span class="line">        &#125;)</span><br><span class="line">        .Default(msg =&gt; CreateAndRegisterWritingEndpoint(null).Tell(send));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>其中_addressToWritable记录endpoint的连接状态<br>如果该endpoint是pass状态（已经建立好tcp连接）调用endpoint的tell方法</p>
+<p>其它状态，先接立连接。_endpoints.createEndPoint()<br>endpoint的createEndPoint,是创建一个endpointWriter,endpointWriter初始化prestart时通过网络库dotnetty的client方法AssociateAsync建立连接.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private async Task&lt;object&gt; AssociateAsync()</span><br><span class="line">&#123;</span><br><span class="line">    try</span><br><span class="line">    &#123;</span><br><span class="line">        return new Handle(await Transport.Associate(RemoteAddress, _refuseUid).ConfigureAwait(false));</span><br><span class="line">    &#125;</span><br><span class="line">    catch (Exception e)</span><br><span class="line">    &#123;</span><br><span class="line">        return new Status.Failure(e.InnerException ?? e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public async Task&lt;AkkaProtocolHandle&gt; Associate(Address remoteAddress, int? refuseUid)</span><br><span class="line">// Prepare a Task and pass its completion source to the manager</span><br><span class="line">var statusPromise = new TaskCompletionSource&lt;AssociationHandle&gt;()   manager.Tell(new </span><br><span class="line"></span><br><span class="line">AssociateUnderlyingRefuseUid(SchemeAugmenter.RemoveScheme(remoteAddress), statusPromiseefuseUid))   return (AkkaProtocolHandle)await statusPromise.Task.ConfigureAwait(false);</span><br></pre></td></tr></table></figure>
+<p>akkaprotocolmanager处理AssociateUnderlyingRefuseUid消息AssociateInternal<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">protected override async Task&lt;AssociationHandle&gt; AssociateInternal(Address remoteAddress)</span><br><span class="line">&#123;</span><br><span class="line">    var clientBootstrap = ClientFactory(remoteAddress);</span><br><span class="line">    var socketAddress = AddressToSocketAddress(remoteAddress);</span><br><span class="line">    socketAddress = await MapEndpointAsync(socketAddress).ConfigureAwait(false);</span><br><span class="line">    var associate = await clientBootstrap.ConnectAsync(socketAddress).ConfigureAwait(false);</span><br><span class="line">    var handler = (TcpClientHandler)associate.Pipeline.Last();</span><br><span class="line">    return await handler.StatusFuture.ConfigureAwait(false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>clientBootstrap是一个dotnettytransport的client,网络库用的dotnetty完成tcp连接,返回一个TcpClientHandler，注册到_addressToWritable记录endpoint的连接状态,endpointwriter创建完会创建endpointreader, 两端建立双向通道（两边都建立好endpointwriter和endpointreader）,同时writer会创建DefaultMessageDispatcher用于远程消息分发。<br>上述建立连接的actor消息流向图<br><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_07_21_akka_remote2/akka_remote201.png?raw=true" alt="image"></p>
+<h3 id="发消息"><a href="#发消息" class="headerlink" title="发消息"></a>发消息</h3><p>tell方法，给endpointwriter发Send消息，endpointWrite处理Send消息<br>private bool WriteSend(EndpointManager.Send send)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">     var pdu = _codec.ConstructMessage(send.Recipient.LocalAddressToUse, send.Recipient,</span><br><span class="line">                    this.SerializeMessage(send.Message), send.SenderOption, send.Seq, _lastAck);</span><br><span class="line">    var ok = _handle.Write(pdu);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>远程的TcpServerHandler处理消息ChannelRead</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">InboundPayload</span><br><span class="line">.With&lt;InboundPayload&gt;(ip =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    var pdu = DecodePdu(ip.Payload);</span><br><span class="line">    </span><br><span class="line">    var ackAndMessage = TryDecodeMessageAndAck(payload);</span><br><span class="line">    _msgDispatch.Dispatch(ackAndMessage.MessageOption.Recipient,</span><br><span class="line">                                ackAndMessage.MessageOption.RecipientAddress,</span><br><span class="line">                                ackAndMessage.MessageOption.SerializedMessage,</span><br><span class="line">                                ackAndMessage.MessageOption.SenderOptional);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中_msgDispatch是DefaultMessageDispatcher,收到消息再分发到对应的actor处理消息</p>
+<p>上述发消息的actor消息流向图<br><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_07_21_akka_remote2/akka_remote202.png?raw=true" alt="image"></p>
+<p>后续总结下路由router部分，再研究下cluster,persistent,singleactor(stub)部分</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

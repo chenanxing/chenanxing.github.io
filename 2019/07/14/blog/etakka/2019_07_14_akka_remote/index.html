@@ -137,7 +137,6 @@
 <p>配置指定remoteecho为”akka.tcp://DeployTarget@localhost:8090”,本地actor和远程actor的创建都是system.ActorOf，不同的只是actor名字参数。在远程创建中，最终调用的是RemoteActorRefProvider的actorof,创建一个RemoteActorRef.RemoteActorRef是远程actor的一个本地引用，创建过程是给远程一个特殊actor(remote)发消息DaemonMsgCreate，远程actor处理消息HandleDaemonMsgCreate并在本地创建对应actor(_system.Provider.ActorOf)</p>
 <p>5 默认的分布式(Distributed by Default)<br>    transport:Akka.Remote默认支持tcp，底层用dot-netty库作为网络库。<br>    Address：ip+port或者hostname<br>    endpoint: 一个endpoint管理一个远程连接，endPointManager管理所有endPoint,而EndPointManager是顶层Actor的一个子Actor（）<br>    assoication: 两个endpoint之间的连接，初始化时打开端口监听连接。<br>    <img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_07_14_akka_remote/akka_remote02.png?raw=true" alt="image"></p>
 <h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><p>transports和endpointManager就两个比较重要的类，transports负责管理底层连接和endpointManager负责上层发送接收</p>
-<p>类关系图（未完）</p>
 
         
         <br>
