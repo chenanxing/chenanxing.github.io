@@ -11,7 +11,7 @@
 
     <title>
         
-        
+        2019_07_29_akka_routing - undefined
         
     </title>
 
@@ -82,8 +82,8 @@
     </div>
     
         <div id="toc" class="toc-article">
-    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#akka中routing的概念"><span class="toc-text">akka中routing的概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#用法举例"><span class="toc-text">用法举例</span></a></li></ol><li class="toc-item toc-level-3"><a class="toc-link" href="#通过代码的方式发布router"><span class="toc-text">通过代码的方式发布router</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过配置的方式发布router"><span class="toc-text">通过配置的方式发布router</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pool方式"><span class="toc-text">Pool方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Group方式"><span class="toc-text">Group方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#提供的几个路由算法"><span class="toc-text">提供的几个路由算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#实现细节（未完）"><span class="toc-text">实现细节（未完）</span></a></li></ol>
-</li></div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Akka学习routing篇"><span class="toc-text">Akka学习routing篇</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#akka中routing的概念"><span class="toc-text">akka中routing的概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#用法举例"><span class="toc-text">用法举例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过代码的方式发布router"><span class="toc-text">通过代码的方式发布router</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过配置的方式发布router"><span class="toc-text">通过配置的方式发布router</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pool方式"><span class="toc-text">Pool方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Group方式"><span class="toc-text">Group方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#提供的几个路由算法"><span class="toc-text">提供的几个路由算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#实现细节（未完）"><span class="toc-text">实现细节（未完）</span></a></li></ol></li></ol>
+</div>
     
 </div>
 
@@ -112,11 +112,11 @@
 
 <div class="post-container">
     <div class="post-title">
-        
+        2019_07_29_akka_routing
     </div>
 
     <div class="post-meta">
-        <span class="attr">Post：<span>2019-07-29 10:12:50</span></span>
+        <span class="attr">Post：<span>2019-07-29 09:40:33</span></span>
         
         
         <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
@@ -124,8 +124,8 @@
 
     </div>
     <div class="post-content ">
-        <p>先从akka的routing的概念，再到用法入手，再深入了解其实现细节</p>
-<h4 id="akka中routing的概念"><a href="#akka中routing的概念" class="headerlink" title="akka中routing的概念"></a>akka中routing的概念</h4><p><img src="![image](https://github.com/chenanxing/blog/blob/master/etakka/2019_07_29_akka_routing/akka_routing01.png?raw=true" alt="image">)<br>其中：</p>
+        <h1 id="Akka学习routing篇"><a href="#Akka学习routing篇" class="headerlink" title="Akka学习routing篇"></a>Akka学习routing篇</h1><p>先从akka的routing的概念，再到用法入手，再深入了解其实现细节</p>
+<h4 id="akka中routing的概念"><a href="#akka中routing的概念" class="headerlink" title="akka中routing的概念"></a>akka中routing的概念</h4><p><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_07_29_akka_routing/akka_routing01.png?raw=true" alt="image"><br>其中：</p>
 <ul>
 <li>router:路由器，也就是消息分发器，成员变量包括路由算法routeLogic和routee处理消息的节点</li>
 <li>routeLogic：路由算法，如轮询（RoundRobin）,随机（RandomRouting）,一致性hash(ConsistentHashingRouting)等</li>
@@ -142,7 +142,7 @@
 <h4 id="提供的几个路由算法"><a href="#提供的几个路由算法" class="headerlink" title="提供的几个路由算法"></a>提供的几个路由算法</h4><ul>
 <li>RoundRobinRoutingLogic:轮询，按顺序轮流发给routee</li>
 <li>RandomRoutingLogic:随机顺序轮流发给routee</li>
-<li>SmallestMailboxRoutingLogic:策略是选择最少处理消息的routee<br><img src="![image](https://github.com/chenanxing/blog/blob/master/etakka/2019_07_29_akka_routing/akka_routing02.png?raw=true" alt="image">)</li>
+<li>SmallestMailboxRoutingLogic:策略是选择最少处理消息的routee<br><img src="https://github.com/chenanxing/blog/blob/master/etakka/2019_07_29_akka_routing/akka_routing02.png?raw=true" alt="image"></li>
 <li>BroadcastRoutingLogic</li>
 <li>ScatterGatherFirstCompletedRoutingLogic</li>
 <li>TailChoppingRoutingLogic</li>
