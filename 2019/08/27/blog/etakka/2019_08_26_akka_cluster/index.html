@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        2019_08_26_akka_cluster - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Akka学习cluster篇"><span class="toc-text">Akka学习cluster篇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cluster提供了什么功能"><span class="toc-text">cluster提供了什么功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#从example入手"><span class="toc-text">从example入手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#几个概念"><span class="toc-text">几个概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现细节"><span class="toc-text">实现细节</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        2019_08_26_akka_cluster
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-08-27 11:04:04</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h1 id="Akka学习cluster篇"><a href="#Akka学习cluster篇" class="headerlink" title="Akka学习cluster篇"></a>Akka学习cluster篇</h1><p>开始学习akka的cluster模块，还是先从example入手，看cluster提供了什么功能。再分析cluster实现中的一些概念，最后从源码层面研究实现的细节。</p>
+<h3 id="cluster提供了什么功能"><a href="#cluster提供了什么功能" class="headerlink" title="cluster提供了什么功能"></a>cluster提供了什么功能</h3><p>1.特点。</p>
+<ul>
+<li>容错性：通过定时检测消息重启进程</li>
+<li>去中心化：p2p协议gossip实现，没有gamemanager这样的单点问题</li>
+<li>可伸缩：可动态加入和退出节点，加入和退出事件会同步给集群上的所有节点，广播带了向量时钟的gossip协议，实现成员副本数据的最终一致性）</li>
+<li>无单点故障：多节点服务，leader节点挂了，其余节点中的一个会成为leader</li>
+</ul>
+<p>2.集群订阅消息<br>集群中每个节点会有这5个状态joining,up,leaving,down,removed。<br>通过subscribe方法订阅节点状态的消息,比如actor启动时监听<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">protected override void PreStart()</span><br><span class="line">&#123;</span><br><span class="line">    Cluster.Subscribe(Self, ClusterEvent.InitialStateAsEvents, new []&#123; typeof(ClusterEvent.IMemberEvent), typeof(ClusterEvent.UnreachableMember) &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当成员变化会收到对应消息,添加成员，删除成员等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">protected override void OnReceive(object message)</span><br><span class="line">&#123;</span><br><span class="line">    var up = message as ClusterEvent.MemberUp;</span><br><span class="line">    if (up != null)</span><br><span class="line">    &#123;</span><br><span class="line">        var mem = up;</span><br><span class="line">        Log.Info(&quot;Member is Up: &#123;0&#125;&quot;, mem.Member);</span><br><span class="line">    &#125; else if(message is ClusterEvent.UnreachableMember)</span><br><span class="line">    &#123;</span><br><span class="line">        var unreachable = (ClusterEvent.UnreachableMember) message;</span><br><span class="line">        Log.Info(&quot;Member detected as unreachable: &#123;0&#125;&quot;unreachable.Member);</span><br><span class="line">    &#125;</span><br><span class="line">    else if (message is ClusterEvent.MemberRemoved)</span><br><span class="line">    &#123;</span><br><span class="line">        var removed = (ClusterEvent.MemberRemoved) message;</span><br><span class="line">        Log.Info(&quot;Member is Removed: &#123;0&#125;&quot;, removed.Member);</span><br><span class="line">    &#125;</span><br><span class="line">    else if (message is ClusterEvent.IMemberEvent)</span><br><span class="line">    &#123;</span><br><span class="line">        //IGNORE                </span><br><span class="line">    &#125;</span><br><span class="line">    else if (message is ClusterEvent.CurrentClusterState)</span><br><span class="line">    &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        Unhandled(message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.路由与负载均衡。路由和负载均衡就是结合routing模块和成员状态的订阅，在一个actor中管理节点成员，通过路由算法分发消息。对比bigworld,类似stub下创建entity,创建成功后注册到stub,由stub负责路由工作。<br>伪代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">protected override void OnReceive(object message)</span><br><span class="line">&#123;</span><br><span class="line">    case ClusterEvent.MemberUp:</span><br><span class="line">        router.add(member)</span><br><span class="line">    case ClusterEvent.MemberRemoved:</span><br><span class="line">        router.remove(member)</span><br><span class="line">    case Message:</span><br><span class="line">        router.route(message)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>4.Cluster Singleton集群中的单例。也就是bigworld中的stub</p>
+<h3 id="从example入手"><a href="#从example入手" class="headerlink" title="从example入手"></a>从example入手</h3><h3 id="几个概念"><a href="#几个概念" class="headerlink" title="几个概念"></a>几个概念</h3><ul>
+<li>vectorclock 向量时钟</li>
+<li>gossip 流言协议</li>
+<li>memberstate 成员状态</li>
+<li>SeedNode 种子节点</li>
+</ul>
+<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3>
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
