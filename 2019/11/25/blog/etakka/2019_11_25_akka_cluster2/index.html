@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        2019_11_25_akka_cluster2 - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#从example入手"><span class="toc-text">从example入手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#几个概念"><span class="toc-text">几个概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现细节"><span class="toc-text">实现细节</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#启动逻辑"><span class="toc-text">启动逻辑</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#订阅消息"><span class="toc-text">订阅消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gossip副本同步"><span class="toc-text">gossip副本同步</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Gossip的结构"><span class="toc-text">Gossip的结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GossipTo"><span class="toc-text">GossipTo</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#merge方法"><span class="toc-text">merge方法</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#GossipTick和GossipSpeedupTick"><span class="toc-text">GossipTick和GossipSpeedupTick</span></a></li></ol></li></ol><li class="toc-item toc-level-3"><a class="toc-link" href="#错误检测"><span class="toc-text">错误检测</span></a></li>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        2019_11_25_akka_cluster2
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-11-25 00:05:34</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h3 id="从example入手"><a href="#从example入手" class="headerlink" title="从example入手"></a>从example入手</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+-------------+ +------------+ +------------+</span><br><span class="line">|   backend   | |  backend   | |  backend   |</span><br><span class="line">+-------------+ +------------+ +------------+</span><br><span class="line">       XX             X              XX</span><br><span class="line">        XX            X             XX</span><br><span class="line">         XX           X           XX</span><br><span class="line">       +------------+ X+--------------+</span><br><span class="line">       |  frontend  |  |  frontend    |</span><br><span class="line">       +------------+  +--------------+</span><br></pre></td></tr></table></figure>
+<p>exampel功能：搭建一组服务，两个前端服务三个后端服务，frontend收到消息后，负载均衡到backend处理，再返回消息。</p>
+<p>对比mobileserver的处理，是这样的，gate server和game server通过gamemanager实现长连接，并通过gamemanager跟gate和game的连接状态，实时同步给其它gate和game，从而获得game的负载状态。服务发现是通过stub初始化后通知gamemanager,gamemanager再广播给所有连接的gate和game，对于单点stub处理不过来的业务，stub再管理多个entity,再作路由下发到entity处理。</p>
+<p>akka的cluster实现思路是，开始提供种子节点seedNodes（由启动配置决定），随后的节点启动连接到（？）种子节点，再通过gossip广播到其它节点，其中gossip主要成员变量是vectorlock（向量时钟，简单理解是版本号，用于版本冲突时的处理）和members(集群中的成员)。节点通过订阅集群中的成员消息来感知其它成员的存在。例子中，两个backend为种子节点，其它成员通过接收成员消息得到其它成员地址。</p>
+<h3 id="几个概念"><a href="#几个概念" class="headerlink" title="几个概念"></a>几个概念</h3><ul>
+<li>vectorclock 向量时钟：分布式系统用来检测多副本冲突，简单理解是git版本管理中的新版本，旧版本与版本冲突处理。对比逻辑时钟，逻辑时钟只保存一个时钟来获得分布系统中事件发生的时序，逻辑时钟无法知道其它进程的状态。向量时钟则保存更多的数据（各个副本的版本号），用于版本数据检测。</li>
+<li>gossip 流言协议：理解是定时向其它节点同步自己的gossip副本状态，最终达到数据一致。</li>
+<li>memberstate 成员状态：节点成员状态包括joining,up,leaving,down,removed。节点开始向种子节点申请加入joing,加入成功收到welcome消息同步gossip副本变成up状态，主动退出leaving,移除removed,连不到节点变成down状态。</li>
+<li>SeedNode 种子节点：每个集群都必须先配置种子节点，作为其它节点启动后连接的节点，连接后同步gossip副本。seednodes的第一个节点作为leader节点。</li>
+</ul>
+<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><p>Cluster在akka的system可以看作单例，</p>
+<p>取本地cluster的方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cluster.Get(system);</span><br></pre></td></tr></table></figure></p>
+<p>取远程cluster的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ActorSelection ClusterCore(Address address)</span><br><span class="line">&#123;</span><br><span class="line">    return Context.ActorSelection(new RootActorPath(address) / &quot;system&quot; / &quot;cluster&quot; / &quot;core&quot; / &quot;daemon&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>cluster会创建一个actor(ClusterCoreSupervisor)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class ClusterCoreSupervisor:ReceiveActor</span><br><span class="line">&#123;</span><br><span class="line">    private IActorRef _publisher;</span><br><span class="line">    private IActorRef _coreDaemon;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>ClusterCoreSupervisor的两个子Actor:_publisher,_coreDaemon</p>
+<ul>
+<li><p>_publisher的作用是处理订阅事件，很容易理解这是本地的消息订阅，记录订阅者和消息类型，跟常用的事件消息实现类型，而远程的gossip副本通过gossipto同步。每当gossip发生变化，通过Publish(gossip)同步给所有订阅者</p>
+</li>
+<li><p>_coreDaemon则是cluster的核心实现</p>
+</li>
+</ul>
+<p>ClusterCoreDaemon结构的几个重要成员</p>
+<ul>
+<li>Gossip _latestGossip：每个cluster维护着一个Gossip副本，可以理解为版本内容，通过gossip协议（定时发送给其它节点，最终收敛），使得gossip副本的数据达到最终一致</li>
+<li>ImmutableList(Address) _seedNodes：种子节点，也就是节点启动时首先连接的节点，需要在启动配置中配置seednodes</li>
+<li>IActorRef _seedNodeProcess:启动actor,启动时负责向种子节点发出initJoin-&gt;Join完成建立加入集群的工作。</li>
+</ul>
+<h4 id="启动逻辑"><a href="#启动逻辑" class="headerlink" title="启动逻辑"></a>启动逻辑</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">       +------------+       +----------+</span><br><span class="line">       |            |       |          |</span><br><span class="line">       | normalNode |       | seedNode |</span><br><span class="line">       |            |       |          |</span><br><span class="line">       +-----+------+       +-----+----+</span><br><span class="line">+---------+  |                    |</span><br><span class="line">| uninit  |  |      initJoin      |</span><br><span class="line">+---------+  +--------------------&gt;</span><br><span class="line">             |      initJoinAck   |</span><br><span class="line">             +&lt;-------------------+</span><br><span class="line">+----------+ |                    |</span><br><span class="line">| tryJoining |      Jointo        |</span><br><span class="line">+----------+ +--------------------&gt;</span><br><span class="line">             |                    |</span><br><span class="line">             |      Welcome       |</span><br><span class="line">   +------+  &lt;--------------------+</span><br><span class="line">   | init |  |      gossip        |</span><br><span class="line">   +------+  +-------------------&gt;+</span><br></pre></td></tr></table></figure>
+<ol>
+<li>一个普通节点会向种子节点s发送initJoin消息，此时普通节点的状态为Uninitialized;</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// send InitJoin to remaining seed nodes (except myself)</span><br><span class="line">foreach (var seed in _remainingSeeds.Select(</span><br><span class="line">    x =&gt; Context.ActorSelection(Context.Parent.Path.ToStringWithAddress(x))))</span><br><span class="line">    seed.Tell(new InternalClusterAction.InitJoin());</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>种子节点收到initJoin消息返回initJoinAck(这里要检查状态是否可达);</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public void InitJoin()</span><br><span class="line">&#123;</span><br><span class="line">    var selfStatus = _latestGossip.GetMember(SelfUniqueAddress).Status;</span><br><span class="line">    if (Gossip.RemoveUnreachableWithMemberStatus.Contains(selfStatus))</span><br><span class="line">    &#123;</span><br><span class="line">        _cluster.LogInfo(&quot;Sending InitJoinNack message from node [&#123;0&#125;] to [&#123;1&#125;]&quot;, SelfUniqueAddress.Address,</span><br><span class="line">            Sender);</span><br><span class="line">        // prevents a Down and Exiting node from being used for joining</span><br><span class="line">        Sender.Tell(new InternalClusterAction.InitJoinNack(_cluster.SelfAddress));</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        // TODO: add config checking</span><br><span class="line">        _cluster.LogInfo(&quot;Sending InitJoinNack message from node [&#123;0&#125;] to [&#123;1&#125;]&quot;, SelfUniqueAddress.Address,</span><br><span class="line">            Sender);</span><br><span class="line">        Sender.Tell(new InternalClusterAction.InitJoinAck(_cluster.SelfAddress));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li><p>收到initJoinAck后，_seedNodeProcess已经完成了自己的任务，会stop掉，给父节点(也就是ClusterCoreDaemon这个actor)发JoinTo消息，然后stop掉自己。ClusterCoreDaemon给seedNode发Jointo消息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">else if (message is InternalClusterAction.InitJoinAck)</span><br><span class="line">&#123;</span><br><span class="line">    // first InitJoinAck reply, join existing cluster</span><br><span class="line">    var initJoinAck = (InternalClusterAction.InitJoinAck)message;</span><br><span class="line">    Context.Parent.Tell(new ClusterUserAction.JoinTo(initJoinAck.Address));</span><br><span class="line">    Context.Stop(Self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>种子节点响应返回Welcome消息（这里主要判断地址成员是否有效，重复ip，port等）</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">var localMembers = _latestGossip.Membe</span><br><span class="line">// check by address without uid to make sure that node with same host:port is not allowed</span><br><span class="line">// to join until previous node with that host:port has been removed from the cluster</span><br><span class="line">var localMember = localMembers.FirstOrDefault(m =&gt; m.Address.Equals(node.Address));</span><br><span class="line">if (localMember != null &amp;&amp; localMember.UniqueAddress.Equals(node))</span><br><span class="line">&#123;</span><br><span class="line">    // node retried join attempt, probably due to lost Welcome message</span><br><span class="line">    _cluster.LogInfo(&quot;Existing member [&#123;0&#125;] is joining again.&quot;, node);</span><br><span class="line">    if (!node.Equals(SelfUniqueAddress))</span><br><span class="line">    &#123;</span><br><span class="line">        Sender.Tell(new InternalClusterAction.Welcome(SelfUniqueAddress, _latestGossip));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>收到Welcome消息，握手基本完成, 将自己的状态变成Initialized,发布消息,然后同步gossip</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">_cluster.LogInfo(&quot;Welcome from [&#123;0&#125;]&quot;, from.Address);</span><br><span class="line">_latestGossip = gossip.Seen(SelfUniqueAddress);</span><br><span class="line">AssertLatestGossip();</span><br><span class="line">Publish(_latestGossip);</span><br><span class="line">if (!from.Equals(SelfUniqueAddress))</span><br><span class="line">    GossipTo(from, Sender);</span><br><span class="line">BecomeInitialized();</span><br></pre></td></tr></table></figure>
+<h3 id="订阅消息"><a href="#订阅消息" class="headerlink" title="订阅消息"></a>订阅消息</h3><p>publisher<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ClusterDomainEventPublisher</span><br><span class="line">&#123;</span><br><span class="line">     _latestGossip = Gossip.Empty;</span><br><span class="line">    _eventStream = Context.System.EventStream;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>订阅事件结构很简单，维护一个gossip副本和一个事件管理器（同进程内的eventlistener），给本进程内订阅的actor一个注册监听的功能，实现Subscribe和Unsubscribe。每当本进程的gossip副本发生变化，即同步给所有订阅的cluster事件的actor。cluster事件包括MemberJoined，MemberUp，MemberExited等。</p>
+<h3 id="gossip副本同步"><a href="#gossip副本同步" class="headerlink" title="gossip副本同步"></a>gossip副本同步</h3><p>gossip副本的同步是实现cluster的状态一致的核心算法。</p>
+<h4 id="Gossip的结构"><a href="#Gossip的结构" class="headerlink" title="Gossip的结构"></a>Gossip的结构</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class Gossip</span><br><span class="line">&#123;</span><br><span class="line">    readonly ImmutableSortedSet&lt;Member&gt; _members;</span><br><span class="line">    readonly GossipOverview _overview;</span><br><span class="line">    readonly VectorClock _version;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>members维护各节点的信息（Address,status等）<br>version则是向量时钟(<a href="https://zhuanlan.zhihu.com/p/56886156" target="_blank" rel="noopener">为什么需要向量时钟</a> 向量时钟这篇文章讲得比较清楚。)，通过<br>将版本信息多存储各各节点的版本信息来检测分布式系统中多副本更新的数据冲突，类似git版本管理。</p>
+<h4 id="GossipTo"><a href="#GossipTo" class="headerlink" title="GossipTo"></a>GossipTo</h4><p>加入种子点后发首先发一次GossipTo来同步副本状态，收到Gossip的处理大致：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">public ReceiveGossipType ReceiveGossip(GossipEnvelope envelope)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    var comparison = remoteGossip.Version.CompareTo(localGossip.Version);</span><br><span class="line">    ...</span><br><span class="line">    switch (comparison)</span><br><span class="line">    &#123;</span><br><span class="line">        case VectorClock.Ordering.Same:</span><br><span class="line">            //same version</span><br><span class="line">            talkback = !_exitingTasksInProgress &amp;&amp; !remoteGossip.SeenByNode(SelfUniqueAddress);</span><br><span class="line">            winningGossip = remoteGossip.MergeSeen(localGossip);</span><br><span class="line">            gossipType = ReceiveGossipType.Same;</span><br><span class="line">            break;</span><br><span class="line">        case VectorClock.Ordering.Before:</span><br><span class="line">            //local is newer</span><br><span class="line">            winningGossip = localGossip;</span><br><span class="line">            talkback = true;</span><br><span class="line">            gossipType = ReceiveGossipType.Older;</span><br><span class="line">            break;</span><br><span class="line">        case VectorClock.Ordering.After:</span><br><span class="line">            //remote is newer</span><br><span class="line">            winningGossip = remoteGossip;</span><br><span class="line">            talkback = !_exitingTasksInProgress &amp;&amp; !remoteGossip.SeenByNode(SelfUniqueAddress);</span><br><span class="line">            gossipType = ReceiveGossipType.Newer;</span><br><span class="line">            break;</span><br><span class="line">        default:</span><br><span class="line">            ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>版本比较：vectorclock的版本比较算法，参见VectorClock.cs的CompareOnlyTo，即是向量时钟的比较算法，可以参考之前的链接<a href="https://zhuanlan.zhihu.com/p/56886156" target="_blank" rel="noopener">为什么需要向量时钟</a></li>
+<li>如果版本一致：copy一份作为winningGossip</li>
+<li>本地版本更新: winningGossip = localGossip</li>
+<li>远程版本更新: winningGossip = remoteGossip</li>
+<li>有版本冲突： Merge</li>
+</ul>
+<h6 id="merge方法"><a href="#merge方法" class="headerlink" title="merge方法"></a>merge方法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public Gossip Merge(Gossip that)</span><br><span class="line">&#123;</span><br><span class="line">    //TODO: Member ordering import?</span><br><span class="line">    // 1. merge vector clocks</span><br><span class="line">    var mergedVClock = _version.Merge(that._version);</span><br><span class="line"></span><br><span class="line">    // 2. merge members by selecting the single Member with highest MemberStatus out of the Member groups</span><br><span class="line">    var mergedMembers = EmptyMembers.Union(Member.PickHighestPriority(this._members, that._members));</span><br><span class="line"></span><br><span class="line">    // 3. merge reachability table by picking records with highest version</span><br><span class="line">    var mergedReachability = this._overview.Reachability.Merge(mergedMembers.Select(m =&gt; m.UniqueAddress),</span><br><span class="line">        that._overview.Reachability);</span><br><span class="line"></span><br><span class="line">    // 4. Nobody can have seen this new gossip yet</span><br><span class="line">    var mergedSeen = ImmutableHashSet.Create&lt;UniqueAddress&gt;();</span><br><span class="line"></span><br><span class="line">    return new Gossip(mergedMembers, new GossipOverview(mergedSeen, mergedReachability), mergedVClock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="GossipTick和GossipSpeedupTick"><a href="#GossipTick和GossipSpeedupTick" class="headerlink" title="GossipTick和GossipSpeedupTick"></a>GossipTick和GossipSpeedupTick</h5><p>除了启动时GossipTo同步副本状态，ClusterCoreDaemon还启动定时器去同步Gossip,这个消息是InternalClusterAction.GossipTick，通过settings.GossipInterval配置同步的间隔（默认配置2s）。<br>为了达到更快速的最终一致性，GossipTick会在需要时加速定时器触发GossipSpeedupTick<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public void GossipTick()</span><br><span class="line">&#123;</span><br><span class="line">    SendGossip();</span><br><span class="line">    if (IsGossipSpeedupNeeded())</span><br><span class="line">    &#123;</span><br><span class="line">        _cluster.Scheduler.ScheduleTellOnce(new TimeSpan(_cluster.Settings.GossipInterval.Ticks / 3), Self,</span><br><span class="line">            InternalClusterAction.GossipSpeedupTick.Instance, ActorRefs.NoSender);</span><br><span class="line">        _cluster.Scheduler.ScheduleTellOnce(new TimeSpan(_cluster.Settings.GossipInterval.Ticks * 2 / 3)Self,</span><br><span class="line">            InternalClusterAction.GossipSpeedupTick.Instance, ActorRefs.NoSender);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public bool IsGossipSpeedupNeeded()</span><br><span class="line">&#123;</span><br><span class="line">    return _latestGossip.Overview.Seen.Count &lt; _latestGossip.Members.Count / 2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="错误检测"><a href="#错误检测" class="headerlink" title="错误检测"></a>错误检测</h3><p>为了监控节点的存活状态，ClusterDaemon会启定时器_failureDetectorReaperTaskCancellable<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// start periodic cluster failure detector reaping (moving nodes condemned by the failure detector to unreachable list)</span><br><span class="line">_failureDetectorReaperTaskCancellable =</span><br><span class="line">    scheduler.ScheduleTellRepeatedlyCancelable(</span><br><span class="line">        settings.PeriodicTasksInitialDelay.Max(settings.UnreachableNodesReaperInterval),</span><br><span class="line">        settings.UnreachableNodesReaperInterval,</span><br><span class="line">        Self,</span><br><span class="line">        InternalClusterAction.ReapUnreachableTick.Instance,</span><br><span class="line">        Self);</span><br></pre></td></tr></table></figure></p>
+<p>该定时器默认配置unreachable-nodes-reaper-interval = 1s，触发ReapUnreachableMembers<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">var newlyDetectedUnreachableMembers =</span><br><span class="line">    localMembers.Where(member =&gt; !(</span><br><span class="line">        member.UniqueAddress.Equals(SelfUniqueAddress) ||</span><br><span class="line">        localOverview.Reachability.Status(SelfUniqueAddress, member.UniqueAddress)Reachability.ReachabilityStatus.Unreachable ||</span><br><span class="line">        localOverview.Reachability.Status(SelfUniqueAddress, member.UniqueAddress)Reachability.ReachabilityStatus.Terminated ||</span><br><span class="line">        _cluster.FailureDetector.IsAvailable(member.Address))).ToImmutableSortedSet</span><br><span class="line">var newlyDetectedReachableMembers = localOverview.Reachability.AllUnreachableFrom(SelfUniqueAddress)</span><br><span class="line">        .Where(node =&gt; !node.Equals(SelfUniqueAddress)_cluster.FailureDetector.IsAvailable(node.Address))</span><br><span class="line">        .Select(localGossip.GetMember).ToImmutableHashSet();</span><br></pre></td></tr></table></figure></p>
+<p>通过FailureDetector检查gossip的各节点状态，地址是否可达等。</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
