@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        用Akka写游戏服务器0[vscode编译运行debug] - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/images/avatar.png">
+        </div>
+        <div class="name">
+            <i>chenanxing</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用dotnet"><span class="toc-text">使用dotnet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#好用的vscode插件"><span class="toc-text">好用的vscode插件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Akka源码编译-工程目录"><span class="toc-text">Akka源码编译,工程目录</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        用Akka写游戏服务器0[vscode编译运行debug]
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2019-11-28 15:09:03</span></span>
+        
+        
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <p>为了更加熟悉Akka，准备在debian上跑一下Akka,写个简单的多进程游戏服务器，visualstudio安装有点重而且无法远程连接，选择vscode remmote</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p><a href="https://dotnet.microsoft.com/download/linux-package-manager/runtime-2.1.1" target="_blank" rel="noopener">官方安装指引</a></p>
+<p>linux下安装NET Core即可，最后安装的是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install aspnetcore-runtime-2.1=2.1.1-1</span><br></pre></td></tr></table></figure></p>
+<h2 id="使用dotnet"><a href="#使用dotnet" class="headerlink" title="使用dotnet"></a>使用dotnet</h2><p>安装完了之后，dotnet可用</p>
+<p><a href="https://docs.microsoft.com/zh-cn/dotnet/core/tools/dotnet?tabs=netcore21" target="_blank" rel="noopener">dotnet命令文档</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dotnet new console -o helloworld</span><br><span class="line">dotnet sln</span><br><span class="line">dotnet build</span><br><span class="line">dotnet clean</span><br><span class="line">dotnet run</span><br></pre></td></tr></table></figure></p>
+<p>等等</p>
+<h2 id="好用的vscode插件"><a href="#好用的vscode插件" class="headerlink" title="好用的vscode插件"></a>好用的vscode插件</h2><ul>
+<li>OmniSharp：c#必备</li>
+<li>vscode-solution-explorer：帮你跑dotnet sln，dotnet new console等，跟vs的工程管理一致，添加工程依赖方便了</li>
+<li>nuget manager: 看需要装，不是必要(nuget库的下载目录 ~/.nuget/)，插件有bug，需要修改.vscode\extensions\jmrog.vscode-nuget-package-manager-1.1.6\out\src\actions\add-methods&gt;fetchPackageVersions.js的node_fetch_1.default(`${versionsUrl}${selectedPackageName.toLowerCase()}</li>
+</ul>
+<h2 id="Akka源码编译-工程目录"><a href="#Akka源码编译-工程目录" class="headerlink" title="Akka源码编译,工程目录"></a>Akka源码编译,工程目录</h2><ul>
+<li>Akka</li>
+<li>ChatClient</li>
+<li>ChatServer</li>
+<li>ChatMessage</li>
+</ul>
+<p>下载最新源码akka.net-1.4.0-beta1,linux下没有NetFramework,所以<br>修改Akka.csproj</p>
+<targetframeworks>$(NetFrameworkLibVersion);$(NetStandardLibVersion)</targetframeworks><br>改为<br><targetframeworks>$(NetStandardLibVersion)</targetframeworks>
+
+<p>添加Akka,AkkaRemote依赖，ChatServer,ChatClient顺利运行</p>
+<p>##aF5运行Debug<br>修改tasks.json的”command”: “/usr/bin/dotnet”</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
